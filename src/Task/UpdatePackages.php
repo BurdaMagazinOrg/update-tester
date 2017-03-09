@@ -102,7 +102,7 @@ class UpdatePackages extends BaseTask {
     }
 
     $json = json_decode($data, TRUE);
-    if ($json === NULL || empty($json['installed'])) {
+    if ($json === NULL) {
       return Result::error($this, 'Unable to process result of outdated packages.');
     }
 

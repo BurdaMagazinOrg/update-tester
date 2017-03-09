@@ -94,7 +94,7 @@ class SetDatabaseSettings extends BaseTask {
     fwrite($fileStream, sprintf('  \'username\' => \'%s\',', $dbSettings['db-username']) . PHP_EOL);
     fwrite($fileStream, sprintf('  \'password\' => \'%s\',', $dbSettings['db-password']) . PHP_EOL);
     fwrite($fileStream, sprintf('  \'host\' => \'%s\',', $dbSettings['db-hostname']) . PHP_EOL);
-    fwrite($fileStream, sprintf('  \'port\' => %s,', $dbSettings['db-port']) . PHP_EOL);
+    fwrite($fileStream, sprintf('  \'port\' => \'%s\',', $dbSettings['db-port']) . PHP_EOL);
     fwrite($fileStream, '];' . PHP_EOL);
 
     fclose($fileStream);
