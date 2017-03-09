@@ -62,9 +62,13 @@ class UpdateTester extends Tasks {
    * @command update:packages
    *
    * @option $output-file Optional output file for composer.json.
+   * @option $only-minor Option if only minor versions should be updated.
    */
   public function updatePackages(
-    array $options = ['output-file' => InputOption::VALUE_REQUIRED]
+    array $options = [
+      'output-file' => InputOption::VALUE_REQUIRED,
+      'only-minor' => FALSE,
+    ]
   ) {
     /** @var \Thunder\UpdateTester\Task\UpdatePackages $updatePackages */
     $updatePackages = $this->task(UpdatePackages::class);
@@ -73,6 +77,7 @@ class UpdateTester extends Tasks {
     if (!empty($this->input()->getOption('output-file'))) {
       $updatePackages->setComposerOutputJson($options['output-file']);
     }
+    $updatePackages->setOnlyMinor($options['only-minor']);
 
     $updatePackages->run();
   }
@@ -92,6 +97,8 @@ class UpdateTester extends Tasks {
    * @option $db-name Database name for cloned site.
    * @option $db-username Username for cloned site.
    * @option $db-password Password for cloned site.
+   * @option $only-minor Update only minor versions in composer.json.
+   * @option $ignore-errors Execution will not be interrupted is sub-task fails.
    *
    * @command test:update
    */
@@ -102,6 +109,8 @@ class UpdateTester extends Tasks {
       'db-name' => InputOption::VALUE_REQUIRED,
       'db-username' => InputOption::VALUE_REQUIRED,
       'db-password' => InputOption::VALUE_REQUIRED,
+      'only-minor' => FALSE,
+      'ignore-errors' => FALSE,
     ]
   ) {
     $absoluteSource = realpath($source);
@@ -110,6 +119,9 @@ class UpdateTester extends Tasks {
     if (!$fileSystem->isAbsolutePath($destination)) {
       $destination = getcwd() . '/' . $destination;
     }
+
+    // By default stop on fail, unless "--ignore-errors" option is not set.
+    $this->stopOnFail(!$options['ignore-errors']);
 
     /** @var \Thunder\UpdateTester\Task\CloneSite $cloneSite */
     $cloneSite = $this->task(CloneSite::class, $absoluteSource, $destination);
@@ -123,11 +135,13 @@ class UpdateTester extends Tasks {
     $updatePackages = $this->task(UpdatePackages::class);
     $updatePackages->setOutput($this->output());
     $updatePackages->setWorkingDirectory($absoluteDestination);
+    $updatePackages->setOnlyMinor($options['only-minor']);
     $updatePackages->run();
 
     /** @var \Robo\Task\Composer\Update $composerUpdate */
     $composerUpdate = $this->task(Update::class);
     $composerUpdate->dir($absoluteDestination);
+    $composerUpdate->option('no-interaction')->option('no-dev');
     $composerUpdate->run();
 
     $absoluteDestinationDocroot = DocrootResolver::getDocroot($absoluteDestination);

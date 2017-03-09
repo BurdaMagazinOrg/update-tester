@@ -23,14 +23,47 @@ class UpdatePackages extends BaseTask {
 
   use IO;
 
+  /**
+   * Working directory where task will be executed.
+   *
+   * @var string
+   */
   protected $workingDirectory = '';
 
+  /**
+   * Input file name. It's staticlly defined to be composer.json.
+   *
+   * @var string
+   */
   protected static $composerInputJson = 'composer.json';
 
+  /**
+   * Output file name.
+   *
+   * @var string
+   */
   protected $composerOutputJson = 'composer.json';
 
+  /**
+   * Composer version parser helper.
+   *
+   * @var \Composer\Semver\VersionParser
+   */
   protected $versionParser;
+
+  /**
+   * Composer version selector helper.
+   *
+   * @var \Composer\Package\Version\VersionSelector
+   */
   protected $versionSelector;
+
+  /**
+   * Should only minor verions be updated.
+   *
+   * @var bool
+   */
+  protected $onlyMinor = FALSE;
 
   /**
    * UpdatePackages constructor.
@@ -49,9 +82,14 @@ class UpdatePackages extends BaseTask {
     $outdatedCmd->dir($this->getWorkingDirectory());
     $outdatedCmd->noAnsi();
 
-    $outdatedCmd->option('minor-only')
-      ->option('direct')
+    $outdatedCmd->option('direct')
+      ->option('format', 'json')
       ->option('no-interaction');
+
+    if ($this->getOnlyMinor()) {
+      $outdatedCmd->option('minor-only');
+    }
+
     $outdatedResult = $outdatedCmd->run();
 
     if (!$outdatedResult->wasSuccessful()) {
@@ -63,16 +101,21 @@ class UpdatePackages extends BaseTask {
       return Result::success($this, 'All packages are up-to-date.');
     }
 
-    $outdatedPackages = [];
-    foreach (explode(PHP_EOL, $data) as $dataRow) {
-      if (empty($dataRow)) {
-        continue;
-      }
-
-      $outdatedPackages[] = new OutdatedPackage($dataRow);
+    $json = json_decode($data, TRUE);
+    if ($json === NULL || empty($json['installed'])) {
+      return Result::error($this, 'Unable to process result of outdated packages.');
     }
 
-    $this->updateJson($outdatedPackages);
+    if (!empty($json['installed'])) {
+      $outdatedPackages = array_map(
+        function ($packageInfo) {
+          return new OutdatedPackage($packageInfo);
+        },
+        $json['installed']
+      );
+
+      $this->updateJson($outdatedPackages);
+    }
 
     return $outdatedResult;
   }
@@ -123,10 +166,10 @@ class UpdatePackages extends BaseTask {
         $newVersion = $version;
       }
 
-      $require[$packageName] = $newVersion;
-
       // Log new updated version for package.
       $this->say(sprintf('Version update for: %s from %s to %s. Using composer version option: %s', $packageName, $require[$packageName], $version, $newVersion));
+
+      $require[$packageName] = $newVersion;
     }
     $jsonData['require'] = $require;
 
@@ -150,7 +193,7 @@ class UpdatePackages extends BaseTask {
    *   Returns full path to composer.json file.
    */
   public function getComposerOutputJson() {
-    return realpath($this->getWorkingDirectory() . '/' . $this->composerOutputJson);
+    return $this->getWorkingDirectory() . '/' . $this->composerOutputJson;
   }
 
   /**
@@ -175,6 +218,26 @@ class UpdatePackages extends BaseTask {
    */
   public function setWorkingDirectory($workingDirectory) {
     $this->workingDirectory = $workingDirectory;
+  }
+
+  /**
+   * Set if only minor versions should be updated.
+   *
+   * @param bool $onlyMinor
+   *   Set if only minor versions will be updated.
+   */
+  public function setOnlyMinor($onlyMinor) {
+    $this->onlyMinor = $onlyMinor;
+  }
+
+  /**
+   * Get if only minor versions should be updated.
+   *
+   * @return bool
+   *   Returns if only minor verions should be updated.
+   */
+  public function getOnlyMinor() {
+    return $this->onlyMinor;
   }
 
 }

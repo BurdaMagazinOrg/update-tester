@@ -35,15 +35,28 @@ class OutdatedPackage {
   protected $packageNewVersion;
 
   /**
-   * PackageVersion constructor.
+   * OutdatedPackage constructor.
    *
-   * @param string $packageComposerInfo
+   * @param array $packageInfo
    *   Outdated package information provided by composer command.
    */
-  public function __construct($packageComposerInfo) {
-    $this->packageName = trim(substr($packageComposerInfo, 0, 42));
-    $this->packageVersion = trim(substr($packageComposerInfo, 42, 20));
-    $this->packageNewVersion = trim(substr($packageComposerInfo, 62, 20));
+  public function __construct(array $packageInfo) {
+    $this->packageName = $packageInfo['name'];
+    $this->packageVersion = $packageInfo['version'];
+    $this->packageNewVersion = $packageInfo['latest'];
+  }
+
+  /**
+   * Create instance of class.
+   *
+   * @param array $packageInfo
+   *   Outdated package information provided by composer command.
+   *
+   * @return \Thunder\UpdateTester\OutdatedPackage
+   *   Returns instance of class.
+   */
+  public static function create(array $packageInfo) {
+    return new static($packageInfo);
   }
 
   /**
