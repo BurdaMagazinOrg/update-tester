@@ -62,4 +62,5 @@ After installation of site is finished or before running default site tests, upd
 ## Possible improvements
 
 - add rollback functionality for tasks, then they can be combined easier without possibility to break something on failure
-- additional refactoring of ```test:update``` command.
+- additional refactoring of ```test:update``` command
+- add tests for commands and tasks
