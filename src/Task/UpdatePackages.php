@@ -79,6 +79,7 @@ class UpdatePackages extends BaseTask {
   public function run() {
     $outdatedCmd = new Outdated();
     $outdatedCmd->inflect($this);
+    $outdatedCmd->printed(FALSE);
     $outdatedCmd->dir($this->getWorkingDirectory());
     $outdatedCmd->noAnsi();
 

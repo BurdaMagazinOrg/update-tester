@@ -58,3 +58,8 @@ After installation of site is finished or before running default site tests, upd
 ```
 [ "$TRAVIS_EVENT_TYPE" = "cron" ] && composer global require "burdamagazinorg/update-tester" && export PATH="$HOME/.composer/vendor/bin:$PATH" && update-tester.php test:update /source/project/path /clone/destination/path --db-name=drupal_clone --db-username='user_clone' --db-password='password_clone' --only-minor
 ```
+
+## Possible improvements
+
+- add rollback functionality for tasks, then they can be combined easier without possibility to break something on failure
+- additional refactoring of ```test:update``` command.
