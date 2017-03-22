@@ -52,15 +52,24 @@ class CreateDatabaseRequirements extends BaseTask {
       return $result;
     }
 
-    // Create user required to authenticated.
+    // Check if user already exists.
     $mysqlCmd = new MySQL();
     $mysqlCmd->inflect($this);
     $mysqlCmd
-      ->option('execute', sprintf('CREATE USER \'%s\'@\'localhost\' IDENTIFIED BY \'%s\';', $dbSettings['db-username'], $dbSettings['db-password']))
+      ->option('silent')
+      ->option('execute', sprintf('SELECT count(*) AS num_of_users FROM mysql.user WHERE user=\'%s\' AND host=\'localhost\';', $dbSettings['db-username']))
       ->option('user', 'root');
+    $result = $mysqlCmd->run();
 
-    // Result is ignored here, because command will fail if user already exists.
-    $mysqlCmd->run();
+    // Create user required to authenticate, if it doesn't already exist.
+    if (trim($result->getOutputData()) === '0') {
+      $mysqlCmd = new MySQL();
+      $mysqlCmd->inflect($this);
+      $mysqlCmd
+        ->option('execute', sprintf('CREATE USER \'%s\'@\'localhost\' IDENTIFIED BY \'%s\';', $dbSettings['db-username'], $dbSettings['db-password']))
+        ->option('user', 'root');
+      $mysqlCmd->run();
+    }
 
     // Grant privileges for user.
     $mysqlCmd = new MySQL();
