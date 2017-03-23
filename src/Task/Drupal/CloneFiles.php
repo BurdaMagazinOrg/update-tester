@@ -47,7 +47,7 @@ class CloneFiles extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
-    $this->say('Cloning files ... ');
+    $this->printTaskInfo(sprintf('Cloning files from %s to %s', $this->source, $this->destination));
 
     if (!is_dir($this->source)) {
       return Result::error($this, 'Provided source folder is not valid.');

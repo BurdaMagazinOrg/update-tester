@@ -5,6 +5,7 @@ namespace Thunder\UpdateTester\Task\Drupal\Database;
 use Robo\Common\IO;
 use Robo\Task\BaseTask;
 use Robo\Task\Docker\Result;
+use Thunder\UpdateTester\Util\DocrootResolver;
 
 /**
  * Task to set database settings in destination site.
@@ -49,17 +50,7 @@ class SetDatabaseSettings extends BaseTask {
    *   Absolute path for settings.php file.
    */
   protected function getFileName() {
-    $fileName = realpath($this->destination . '/sites/default/settings.php');
-
-    if (!is_file($fileName)) {
-      $fileName = realpath($this->destination . '/docroot/sites/default/settings.php');
-
-      if (!is_file($fileName)) {
-        return '';
-      }
-    }
-
-    return $fileName;
+    return DocrootResolver::getDocroot($this->destination) . '/sites/default/settings.php';
   }
 
   /**
@@ -70,6 +61,8 @@ class SetDatabaseSettings extends BaseTask {
     if (empty($fileName)) {
       return Result::error($this, 'Unable to find settings.php file in destination folder.');
     }
+
+    $this->printTaskInfo(sprintf('Set database settings in %s', $fileName));
 
     if (!is_writable($fileName)) {
       $this->say('File settings.php in destination folder is not writable. Trying to change it to writable.');

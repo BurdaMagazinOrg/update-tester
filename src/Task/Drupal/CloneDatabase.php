@@ -76,13 +76,23 @@ class CloneDatabase extends BaseTask {
   }
 
   /**
+   * Get destination folder as it's provided for command.
+   *
+   * @return string
+   *   Returns destination folder (can be also relative path).
+   */
+  public function getDestination() {
+    return $this->destination;
+  }
+
+  /**
    * Get database dump file name.
    *
    * @return string
    *   File used to dump database.
    */
   protected function getDumpFileName() {
-    return realpath($this->destination) . '/db-dump.sql';
+    return realpath($this->getDestination()) . '/db-dump.sql';
   }
 
   /**
@@ -91,12 +101,12 @@ class CloneDatabase extends BaseTask {
    * @return string
    *   Docroot to destination site.
    */
-  protected function getDocRoot() {
+  protected function getDestinationDocroot() {
     if (isset($this->destinationDocroot)) {
       return $this->destinationDocroot;
     }
 
-    $this->destinationDocroot = DocrootResolver::getDocroot($this->destination);
+    $this->destinationDocroot = DocrootResolver::getDocroot($this->getDestination());
 
     return $this->destinationDocroot;
   }
@@ -105,11 +115,11 @@ class CloneDatabase extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
-    if (empty($this->getDocRoot())) {
+    if (empty($this->getDestinationDocroot())) {
       return Result::error($this, 'Unable to get destination docroot.');
     }
 
-    $this->say('Cloning database ... ');
+    $this->printTaskInfo(sprintf('Cloning database from %s to %s site', $this->getSource(), $this->getDestination()));
 
     return $this->collection()->run();
   }
@@ -123,7 +133,7 @@ class CloneDatabase extends BaseTask {
   public function collection() {
     $collection = new Collection();
 
-    $setDatabaseSettings = new SetDatabaseSettings($this->destination, $this->databaseSettings);
+    $setDatabaseSettings = new SetDatabaseSettings($this->getDestination(), $this->databaseSettings);
     $setDatabaseSettings->inflect($this);
     $setDatabaseSettings->setOutput($this->output());
     $collection->add($setDatabaseSettings);
@@ -144,7 +154,7 @@ class CloneDatabase extends BaseTask {
 
     $importDatabase = new Exec(sprintf('drush --yes sql-cli < %s', $dumpFile));
     $importDatabase->inflect($this);
-    $importDatabase->dir(realpath($this->getDocRoot()));
+    $importDatabase->dir(realpath($this->getDestinationDocroot()));
     $collection->add($importDatabase);
 
     return $collection;

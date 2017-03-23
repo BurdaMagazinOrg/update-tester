@@ -210,9 +210,9 @@ class UpdateTester extends Tasks {
     $resultStatus = $drushCmd->run();
 
     if ($resultStatus->wasSuccessful()) {
-      $sourceSiteStatus = json_decode($resultStatus->getOutputData(), TRUE);
+      $destinationSiteStatus = json_decode($resultStatus->getOutputData(), TRUE);
 
-      $validateSite = $this->task(ValidateSite::class, $sourceSiteStatus);
+      $validateSite = $this->task(ValidateSite::class, $destinationSiteStatus);
       $resultValidation = $validateSite->run();
 
       if ($resultValidation->wasSuccessful()) {

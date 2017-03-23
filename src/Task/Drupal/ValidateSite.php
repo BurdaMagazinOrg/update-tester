@@ -31,7 +31,7 @@ class ValidateSite extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
-    $this->say('Checking site status for: ' . $this->siteStatus['root']);
+    $this->printTaskInfo('Checking site status for: ' . $this->siteStatus['root']);
 
     // Check that configuration is correct and Drupal 8 site is installed.
     if ($this->siteStatus['bootstrap'] !== 'Successful') {

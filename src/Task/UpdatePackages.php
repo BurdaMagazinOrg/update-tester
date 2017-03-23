@@ -87,7 +87,7 @@ class UpdatePackages extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
-    $this->printTaskInfo(sprintf('Execute package update in %s', $this->getWorkingDirectory()));
+    $this->printTaskInfo(sprintf('Updating packages at %s', $this->getWorkingDirectory()));
 
     $outdatedCmd = new Outdated();
     $outdatedCmd->inflect($this);

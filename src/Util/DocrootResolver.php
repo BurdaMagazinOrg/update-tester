@@ -30,7 +30,7 @@ class DocrootResolver {
   /**
    * Reference file.
    *
-   * It's used to determine if directory with existence of it, acutally site
+   * It's used to determine if directory with existence of it, actually site
    * docroot directory.
    *
    * @var string
@@ -72,13 +72,14 @@ class DocrootResolver {
               break;
             }
 
-            // Absolute paths are not supported.
+            // Check if provided docroot path is absolute and use it.
             $fileSystem = new Filesystem();
             if ($fileSystem->isAbsolutePath($composerBasePath)) {
-              break;
+              $composerBasedDocroot = realpath($composerBasePath);
             }
-
-            $composerBasedDocroot = realpath($docRoot . '/' . strstr($path, '/core', TRUE));
+            else {
+              $composerBasedDocroot = realpath($docRoot . '/' . strstr($path, '/core', TRUE));
+            }
 
             // Validate docroot resolved over composer.json information.
             if (is_file($composerBasedDocroot . '/' . static::$docrootReferenceFile)) {
