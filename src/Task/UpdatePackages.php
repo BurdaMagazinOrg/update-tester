@@ -31,7 +31,7 @@ class UpdatePackages extends BaseTask {
   protected $workingDirectory = '';
 
   /**
-   * Input file name. It's staticlly defined to be composer.json.
+   * Input file name. It's statically defined to be composer.json.
    *
    * @var string
    */
@@ -59,11 +59,11 @@ class UpdatePackages extends BaseTask {
   protected $versionSelector;
 
   /**
-   * Should only minor verions be updated.
+   * Only minor versions should be updated. By default: TRUE.
    *
    * @var bool
    */
-  protected $onlyMinor = FALSE;
+  protected $onlyMinor = TRUE;
 
   /**
    * UpdatePackages constructor.
@@ -77,6 +77,8 @@ class UpdatePackages extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
+    $this->printTaskInfo(sprintf('Execute package update in %s', $this->getWorkingDirectory()));
+
     $outdatedCmd = new Outdated();
     $outdatedCmd->inflect($this);
     $outdatedCmd->printed(FALSE);
@@ -88,6 +90,8 @@ class UpdatePackages extends BaseTask {
       ->option('no-interaction');
 
     if ($this->getOnlyMinor()) {
+      $this->printTaskInfo('Update only minor versions for packages.');
+
       $outdatedCmd->option('minor-only');
     }
 
@@ -235,7 +239,7 @@ class UpdatePackages extends BaseTask {
    * Get if only minor versions should be updated.
    *
    * @return bool
-   *   Returns if only minor verions should be updated.
+   *   Returns if only minor versions should be updated.
    */
   public function getOnlyMinor() {
     return $this->onlyMinor;

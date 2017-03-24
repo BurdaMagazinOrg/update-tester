@@ -76,7 +76,7 @@ class CloneDatabase extends BaseTask {
   }
 
   /**
-   * Get database dumo file name.
+   * Get database dump file name.
    *
    * @return string
    *   File used to dump database.

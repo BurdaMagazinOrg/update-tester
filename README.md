@@ -45,7 +45,7 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 
 To execute update test for your installed Drupal 8 site, you can execute following command:
 ```
-update-tester.php test:update /source/project/path /clone/destination/path --db-name=drupal_clone --db-username='user_clone' --db-password='password_clone' --only-minor
+update-tester.php test:update /source/project/path /clone/destination/path --db-name=drupal_clone --db-username='user_clone' --db-password='password_clone'
 ```
 
 ## Travis CI Integration
@@ -56,7 +56,7 @@ In order to do that, [Travis CI cron](https://docs.travis-ci.com/user/cron-jobs/
 Next step is to use Travis CI environment variable ```$TRAVIS_EVENT_TYPE``` to distinguish cron run from normal pull request or merge request run, since update tester should be executed only on cron run.
 After installation of site is finished or before running default site tests, update tester should be executed. That can be achieved with following statements in travis.yml file:
 ```
-[ "$TRAVIS_EVENT_TYPE" = "cron" ] && composer global require "burdamagazinorg/update-tester" && export PATH="$HOME/.composer/vendor/bin:$PATH" && update-tester.php test:update /source/project/path /clone/destination/path --db-name=drupal_clone --db-username='user_clone' --db-password='password_clone' --only-minor
+[ "$TRAVIS_EVENT_TYPE" = "cron" ] && composer global require "burdamagazinorg/update-tester" && export PATH="$HOME/.composer/vendor/bin:$PATH" && update-tester.php test:update /source/project/path /clone/destination/path --db-name=drupal_clone --db-username='user_clone' --db-password='password_clone'
 ```
 
 ## Possible improvements
