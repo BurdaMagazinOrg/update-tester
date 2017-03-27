@@ -66,7 +66,17 @@ class UpdatePackages extends BaseTask {
   protected $onlyMinor = TRUE;
 
   /**
-   * UpdatePackages constructor.
+   * List of packages that will be forced to update.
+   *
+   * Forced packages will be updated even if they are not in root composer.json
+   * file. Alias will be used in order to force update of package.
+   *
+   * @var array
+   */
+  protected $forcedPackages = [];
+
+  /**
+   * Update packages constructor.
    */
   public function __construct() {
     $this->versionParser = new VersionParser();
@@ -85,9 +95,8 @@ class UpdatePackages extends BaseTask {
     $outdatedCmd->dir($this->getWorkingDirectory());
     $outdatedCmd->noAnsi();
 
-    $outdatedCmd->option('direct')
-      ->option('format', 'json')
-      ->option('no-interaction');
+    $outdatedCmd->option('no-interaction')
+      ->option('format', 'json');
 
     if ($this->getOnlyMinor()) {
       $this->printTaskInfo('Update only minor versions for packages.');
@@ -142,17 +151,21 @@ class UpdatePackages extends BaseTask {
       $packageName = $outdatedPackage->getPackageName();
       $packageNewVersion = $outdatedPackage->getPackageNewVersion();
 
-      if (!isset($require[$packageName])) {
-        $this->logger->warning(sprintf('No package found: %s', $packageName));
-
-        continue;
-      }
-
       try {
         $version = $this->versionParser->normalize($packageNewVersion);
       }
       catch (UnexpectedValueException $e) {
         $this->logger->warning(sprintf('Not supported version: %s for %s', $packageNewVersion, $packageName));
+
+        continue;
+      }
+
+      if (!isset($require[$packageName])) {
+        // If package is not defined in root composer, but it should be updated,
+        // then we will set it as alias.
+        if (in_array($packageName, $this->getForcedPackages())) {
+          $require[$packageName] = sprintf('%s as %s', $outdatedPackage->getPackageNewVersion(), $outdatedPackage->getPackageVersion());
+        }
 
         continue;
       }
@@ -177,6 +190,14 @@ class UpdatePackages extends BaseTask {
       $require[$packageName] = $newVersion;
     }
     $jsonData['require'] = $require;
+
+    // Check are all forced packages updated.
+    $notUpdated = array_diff($this->getForcedPackages(), array_keys($require));
+    if (!empty($notUpdated)) {
+      $this->logger()->warning(
+        sprintf('Following packages are not updated: %s', implode(', ', $notUpdated))
+      );
+    }
 
     file_put_contents($this->getComposerOutputJson(), json_encode($jsonData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
   }
@@ -243,6 +264,26 @@ class UpdatePackages extends BaseTask {
    */
   public function getOnlyMinor() {
     return $this->onlyMinor;
+  }
+
+  /**
+   * Get list of packages.
+   *
+   * @return array
+   *   List of packages for update.
+   */
+  public function getForcedPackages() {
+    return $this->forcedPackages;
+  }
+
+  /**
+   * Set list of packages that should be updated.
+   *
+   * @param array $forcedPackages
+   *   List of packages for update.
+   */
+  public function setForcedPackages(array $forcedPackages) {
+    $this->forcedPackages = $forcedPackages;
   }
 
 }
