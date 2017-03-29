@@ -131,7 +131,7 @@ class CloneSite extends BaseTask {
       $drushCmd = new Drush();
       $drushCmd->inflect($this);
 
-      $drushCmd->dir(realpath($this->getDestination()) . '/docroot/');
+      $drushCmd->dir(DocrootResolver::getDocroot($this->getDestination()));
 
       $drushCmd
         ->arg('status')
