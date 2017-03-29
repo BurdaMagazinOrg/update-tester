@@ -54,6 +54,34 @@ class UpdateTester extends Tasks {
   }
 
   /**
+   * Get forced packages from command line option.
+   *
+   * Forced packages are comma separated list of composer packages and they are
+   * passed to tasks as array.
+   *
+   * @param string $inputValue
+   *   Value provided in command line.
+   *
+   * @return array
+   *   Return list of packages as array.
+   */
+  protected function getForcedPackages($inputValue) {
+    $forcePackages = [];
+
+    if ($inputValue) {
+      $forcePackages = str_getcsv($inputValue);
+
+      if (empty($forcePackages) || empty($forcePackages[0])) {
+        $this->say('List of forced packages is not provided properly. List of comma separated packages is expected.');
+
+        return [];
+      }
+    }
+
+    return $forcePackages;
+  }
+
+  /**
    * Update composer packages for project.
    *
    * @param array $options
@@ -63,15 +91,18 @@ class UpdateTester extends Tasks {
    *
    * @option $output-file Optional output file for composer.json.
    * @option $major-versions Update major versions in composer.json.
+   * @option $force-packages Comma separated packages that should be updated.
    */
   public function updatePackages(
     array $options = [
       'output-file' => InputOption::VALUE_REQUIRED,
       'major-versions' => FALSE,
+      'force-packages' => InputOption::VALUE_REQUIRED,
     ]
   ) {
     /** @var \Thunder\UpdateTester\Task\UpdatePackages $updatePackages */
     $updatePackages = $this->task(UpdatePackages::class);
+    $updatePackages->setForcedPackages($this->getForcedPackages($options['force-packages']));
     $updatePackages->setOutput($this->output());
 
     if (!empty($this->input()->getOption('output-file'))) {
@@ -102,6 +133,7 @@ class UpdateTester extends Tasks {
    * @option $db-password Password for cloned site.
    * @option $major-versions Update major versions in composer.json.
    * @option $ignore-errors Execution will not be interrupted is sub-task fails.
+   * @option $force-packages Comma separated packages that should be updated.
    *
    * @command test:update
    */
@@ -114,6 +146,7 @@ class UpdateTester extends Tasks {
       'db-password' => InputOption::VALUE_REQUIRED,
       'major-versions' => FALSE,
       'ignore-errors' => FALSE,
+      'force-packages' => InputOption::VALUE_REQUIRED,
     ]
   ) {
     $absoluteSource = realpath($source);
@@ -136,6 +169,7 @@ class UpdateTester extends Tasks {
 
     /** @var \Thunder\UpdateTester\Task\UpdatePackages $updatePackages */
     $updatePackages = $this->task(UpdatePackages::class);
+    $updatePackages->setForcedPackages($this->getForcedPackages($options['force-packages']));
     $updatePackages->setOutput($this->output());
     $updatePackages->setWorkingDirectory($absoluteDestination);
     if ($options['major-versions']) {
