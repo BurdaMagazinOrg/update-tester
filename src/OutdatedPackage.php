@@ -5,7 +5,7 @@ namespace Thunder\UpdateTester;
 /**
  * Outdated package information (contains current version, new versions)
  *
- * Composer formating of outdated packages looks like following:
+ * Composer formatting of outdated packages looks like following:
  * 1. 42 characters are package name
  * 2. 20 characters are current package version
  * 3. 20 characters are new package version

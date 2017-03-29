@@ -62,12 +62,12 @@ class UpdateTester extends Tasks {
    * @command update:packages
    *
    * @option $output-file Optional output file for composer.json.
-   * @option $only-minor Option if only minor versions should be updated.
+   * @option $major-versions Update major versions in composer.json.
    */
   public function updatePackages(
     array $options = [
       'output-file' => InputOption::VALUE_REQUIRED,
-      'only-minor' => FALSE,
+      'major-versions' => FALSE,
     ]
   ) {
     /** @var \Thunder\UpdateTester\Task\UpdatePackages $updatePackages */
@@ -77,7 +77,10 @@ class UpdateTester extends Tasks {
     if (!empty($this->input()->getOption('output-file'))) {
       $updatePackages->setComposerOutputJson($options['output-file']);
     }
-    $updatePackages->setOnlyMinor($options['only-minor']);
+
+    if ($options['major-versions']) {
+      $updatePackages->setOnlyMinor(FALSE);
+    }
 
     $updatePackages->run();
   }
@@ -97,7 +100,7 @@ class UpdateTester extends Tasks {
    * @option $db-name Database name for cloned site.
    * @option $db-username Username for cloned site.
    * @option $db-password Password for cloned site.
-   * @option $only-minor Update only minor versions in composer.json.
+   * @option $major-versions Update major versions in composer.json.
    * @option $ignore-errors Execution will not be interrupted is sub-task fails.
    *
    * @command test:update
@@ -109,7 +112,7 @@ class UpdateTester extends Tasks {
       'db-name' => InputOption::VALUE_REQUIRED,
       'db-username' => InputOption::VALUE_REQUIRED,
       'db-password' => InputOption::VALUE_REQUIRED,
-      'only-minor' => FALSE,
+      'major-versions' => FALSE,
       'ignore-errors' => FALSE,
     ]
   ) {
@@ -135,7 +138,9 @@ class UpdateTester extends Tasks {
     $updatePackages = $this->task(UpdatePackages::class);
     $updatePackages->setOutput($this->output());
     $updatePackages->setWorkingDirectory($absoluteDestination);
-    $updatePackages->setOnlyMinor($options['only-minor']);
+    if ($options['major-versions']) {
+      $updatePackages->setOnlyMinor(FALSE);
+    }
     $updatePackages->run();
 
     /** @var \Robo\Task\Composer\Update $composerUpdate */
