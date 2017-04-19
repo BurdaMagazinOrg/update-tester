@@ -96,7 +96,7 @@ class CloneSite extends BaseTask {
 
       $drushCmd = new Drush();
       $drushCmd->inflect($this);
-      $drushCmd->printed(FALSE);
+      $drushCmd->printOutput(FALSE);
 
       $drushCmd->dir(DocrootResolver::getDocroot(realpath($this->getSource())));
 

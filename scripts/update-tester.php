@@ -190,7 +190,7 @@ class UpdateTester extends Tasks {
     $drushCmd->dir($absoluteDestinationDocroot);
     $drushCmd->arg('updatedb');
     $drushCmd->option('entity-updates');
-    $drushCmd->printed(TRUE);
+    $drushCmd->printOutput(TRUE);
     $drushCmd->run();
 
     $drushCmd = $this->task(Drush::class);
@@ -200,7 +200,7 @@ class UpdateTester extends Tasks {
 
     $drushCmd = $this->task(Drush::class);
     $drushCmd->dir($absoluteDestinationDocroot);
-    $drushCmd->printed(FALSE);
+    $drushCmd->printOutput(FALSE);
     $drushCmd
       ->arg('status')
       ->option('pipe')

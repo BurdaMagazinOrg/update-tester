@@ -91,7 +91,7 @@ class UpdatePackages extends BaseTask {
 
     $outdatedCmd = new Outdated();
     $outdatedCmd->inflect($this);
-    $outdatedCmd->printed(FALSE);
+    $outdatedCmd->printOutput(FALSE);
     $outdatedCmd->dir($this->getWorkingDirectory());
     $outdatedCmd->noAnsi();
 
