@@ -15,7 +15,7 @@ class Drush extends Exec {
   public function __construct() {
     parent::__construct('drush');
 
-    $this->printed(FALSE);
+    $this->printOutput(FALSE);
 
     $this->option('yes');
   }
