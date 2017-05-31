@@ -6,9 +6,12 @@ use Robo\Collection\Collection;
 use Robo\Common\IO;
 use Robo\Result;
 use Robo\Task\BaseTask;
+use Robo\Task\Composer\DumpAutoload;
 use Robo\Task\FileSystem\loadTasks as FileSystemTasks;
 use Thunder\UpdateTester\Exec\Drush;
 use Thunder\UpdateTester\Task\Drupal\CloneDatabase;
+use Thunder\UpdateTester\Task\Drupal\ReplaceComposerPaths;
+use Thunder\UpdateTester\Task\Drupal\SetAutoload;
 use Thunder\UpdateTester\Task\Drupal\ValidateSite;
 use Thunder\UpdateTester\Task\Drupal\CloneFiles;
 use Thunder\UpdateTester\Task\FileSystem\CreateDestination;
@@ -21,6 +24,16 @@ class CloneSite extends BaseTask {
 
   use FileSystemTasks;
   use IO;
+
+  /**
+   * Sub directory inside destination directory for absolute docroot directory.
+   *
+   * It's directory where absolute path docroot will be placed inside
+   * cloning destination directory.
+   *
+   * @var string
+   */
+  protected static $absoluteDocrootDir = '_cloned_docroot';
 
   /**
    * Source folder.
@@ -43,6 +56,11 @@ class CloneSite extends BaseTask {
    */
   protected $sourceSiteStatus;
 
+  /**
+   * Status of destination site fetched by Drush.
+   *
+   * @var array
+   */
   protected $destinationSiteStatus;
 
   /**
@@ -184,7 +202,7 @@ class CloneSite extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
-    $this->say('Starting cloning of site ...');
+    $this->printTaskInfo(sprintf('Starting cloning of site from %s to %s', $this->getSource(), $this->getDestination()));
 
     $status = $this->getSourceSiteStatus();
     if (empty($status)) {
@@ -228,6 +246,43 @@ class CloneSite extends BaseTask {
     $cloneFiles->inflect($this);
     $cloneFiles->setOutput($this->output());
     $collection->add($cloneFiles);
+
+    // If docroot source is not inside cloning source folder then it has to be
+    // cloned too into destination folder and composer.json has to be adjusted.
+    $sourceDocroot = DocrootResolver::getDocroot(realpath($this->getSource()));
+    if (strpos($sourceDocroot, realpath($this->getSource()) . '/') !== 0) {
+      $destinationDocroot = $this->getDestination() . '/' . static::$absoluteDocrootDir;
+
+      // Create destination directory for docroot.
+      $createDocrootDestination = new CreateDestination($destinationDocroot);
+      $createDocrootDestination->inflect($this);
+      $createDocrootDestination->setOutput($this->output());
+      $collection->add($createDocrootDestination);
+
+      // Clone docroot files, since they are not inside cloned directory.
+      $cloneDocrootFiles = new CloneFiles($sourceDocroot, $destinationDocroot);
+      $cloneDocrootFiles->inflect($this);
+      $cloneDocrootFiles->setOutput($this->output());
+      $collection->add($cloneDocrootFiles);
+
+      // Set docroot related install paths to new path.
+      $updateInstallPaths = new ReplaceComposerPaths($this->getDestination() . '/composer.json', $sourceDocroot, $destinationDocroot);
+      $updateInstallPaths->inflect($this);
+      $updateInstallPaths->setOutput($this->output());
+      $collection->add($updateInstallPaths);
+
+      // Set proper path in autoload.php in docroot to composer autoload.php.
+      $setAutoload = new SetAutoload($destinationDocroot, $this->getDestination());
+      $setAutoload->inflect($this);
+      $setAutoload->setOutput($this->output());
+      $collection->add($setAutoload);
+
+      // Composer autoload files has to be triggered to take new paths.
+      $dumpAutoload = new DumpAutoload();
+      $dumpAutoload->dir($this->getDestination());
+      $dumpAutoload->inflect($this);
+      $collection->add($dumpAutoload);
+    }
 
     $cloneDatabase = new CloneDatabase($this->getSource(), $this->getDestination(), $this->getDatabaseSettings());
     $cloneDatabase->inflect($this);

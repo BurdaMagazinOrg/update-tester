@@ -45,7 +45,13 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 
 To execute update test for your installed Drupal 8 site, you can execute following command:
 ```
-update-tester.php test:update /source/project/path /clone/destination/path --db-name=drupal_clone --db-username='user_clone' --db-password='password_clone'
+update-tester.php test:update /source/project/path /clone/destination/path
+```
+
+**NOTE:** If project has complicated deployment process. For example: docroot is not inside project folder but in other location, composer scripts that expect parts of projects to be in specific locations and so on. Then project has to be installed manually and composer update can be executed manually too.
+```
+update-tester.php update:packages
+composer update
 ```
 
 ## Travis CI Integration

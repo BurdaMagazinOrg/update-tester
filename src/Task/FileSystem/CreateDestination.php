@@ -32,11 +32,12 @@ class CreateDestination extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
+    $this->printTaskInfo(sprintf('Creating destination directory %s', $this->destination));
+
     if (is_dir($this->destination)) {
       return Result::error($this, 'Destination directory already exists.');
     }
 
-    $this->say('Creating destination directory ...');
     return (new FilesystemStack())
       ->inflect($this)
       ->mkdir($this->destination)

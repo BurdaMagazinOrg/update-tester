@@ -37,7 +37,7 @@ class CreateDatabaseRequirements extends BaseTask {
    * {@inheritdoc}
    */
   public function run() {
-    $this->say('Creating database requirements ... ');
+    $this->printTaskInfo('Creating database requirements (database, user, grants)');
 
     $dbSettings = $this->databaseSettings;
 
