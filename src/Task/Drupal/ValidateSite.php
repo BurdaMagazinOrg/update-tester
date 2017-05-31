@@ -34,7 +34,7 @@ class ValidateSite extends BaseTask {
     $this->say('Checking site status for: ' . $this->siteStatus['root']);
 
     // Check that configuration is correct and Drupal 8 site is installed.
-    if ($this->siteStatus['bootstrap'] !== 'Successful') {
+    if (empty($this->siteStatus['bootstrap'])) {
       return Result::error($this, 'Site status is not valid.');
     }
 
