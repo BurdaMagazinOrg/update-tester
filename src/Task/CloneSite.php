@@ -109,7 +109,7 @@ class CloneSite extends BaseTask {
       $result = $drushCmd->run();
 
       if ($result->wasSuccessful()) {
-        $this->sourceSiteStatus = json_decode($result->getOutputData(), TRUE);
+        $this->sourceSiteStatus = json_decode($result->getMessage(), TRUE);
       }
       else {
         $this->sourceSiteStatus = [];
@@ -142,7 +142,7 @@ class CloneSite extends BaseTask {
       $result = $drushCmd->run();
 
       if ($result->wasSuccessful()) {
-        $this->destinationSiteStatus = json_decode($result->getOutputData(), TRUE);
+        $this->destinationSiteStatus = json_decode($result->getMessage(), TRUE);
       }
       else {
         $this->destinationSiteStatus = [];
