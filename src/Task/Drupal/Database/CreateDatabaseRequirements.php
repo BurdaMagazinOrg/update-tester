@@ -62,7 +62,7 @@ class CreateDatabaseRequirements extends BaseTask {
     $result = $mysqlCmd->run();
 
     // Create user required to authenticate, if it doesn't already exist.
-    if (trim($result->getOutputData()) === '0') {
+    if (trim($result->getMessage()) === '0') {
       $mysqlCmd = new MySQL();
       $mysqlCmd->inflect($this);
       $mysqlCmd

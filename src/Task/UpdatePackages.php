@@ -110,7 +110,7 @@ class UpdatePackages extends BaseTask {
       return Result::error($this, 'Unable to fetch outdated packages.');
     }
 
-    $data = $outdatedResult->getOutputData();
+    $data = $outdatedResult->getMessage();
     if (empty($data)) {
       return Result::success($this, 'All packages are up-to-date.');
     }
