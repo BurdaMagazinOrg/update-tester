@@ -177,13 +177,19 @@ class UpdateTester extends Tasks {
     }
     $updatePackages->run();
 
+    $absoluteDestinationDocroot = DocrootResolver::getDocroot($absoluteDestination);
+
+    // Run "drush cr" before updating code.
+    $drushCmd = $this->task(Drush::class);
+    $drushCmd->dir($absoluteDestinationDocroot);
+    $drushCmd->arg('cache-rebuild');
+    $drushCmd->run();
+
     /** @var \Robo\Task\Composer\Update $composerUpdate */
     $composerUpdate = $this->task(Update::class);
     $composerUpdate->dir($absoluteDestination);
     $composerUpdate->option('no-interaction')->option('no-dev');
     $composerUpdate->run();
-
-    $absoluteDestinationDocroot = DocrootResolver::getDocroot($absoluteDestination);
 
     /** @var \Thunder\UpdateTester\Exec\Drush $drushCmd */
     $drushCmd = $this->task(Drush::class);
