@@ -103,7 +103,7 @@ class CloneSite extends BaseTask {
       $drushCmd
         ->arg('status')
         ->option('pipe')
-        ->option('show-passwords');
+        ->option('fields', 'drupal-version,uri,db-driver,db-hostname,db-port,db-username,db-name,db-status,bootstrap,theme,admin-theme,php-bin,php-conf,php-os,drush-script,drush-version,drush-temp,drush-conf,install-profile,root,site,files,private,temp');
 
       /** @var \Robo\Result $result */
       $result = $drushCmd->run();
@@ -134,9 +134,9 @@ class CloneSite extends BaseTask {
       $drushCmd->dir(DocrootResolver::getDocroot($this->getDestination()));
 
       $drushCmd
-        ->arg('status')
+        ->arg('core-status')
         ->option('pipe')
-        ->option('show-passwords');
+        ->option('fields', 'db-password,drupal-version,uri,db-driver,db-hostname,db-port,db-username,db-name,db-status,bootstrap,theme,admin-theme,php-bin,php-conf,php-os,drush-script,drush-version,drush-temp,drush-conf,install-profile,root,site,files,private,temp');
 
       /** @var \Robo\Result $result */
       $result = $drushCmd->run();
