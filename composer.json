@@ -25,7 +25,7 @@
   "require": {
     "php": ">7.3",
     "composer/composer": "^1.4",
-    "consolidation/robo": "^2.0",
+    "consolidation/robo": "^1.0",
     "symfony/filesystem": "^3.2",
     "drush/drush": "~9.0"
   },
