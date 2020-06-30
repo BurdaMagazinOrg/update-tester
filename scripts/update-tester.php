@@ -210,7 +210,7 @@ class UpdateTester extends Tasks {
     $drushCmd
       ->arg('status')
       ->option('pipe')
-      ->option('fields', 'db-password,drupal-version,uri,db-driver,db-hostname,db-port,db-username,db-name,db-status,bootstrap,theme,admin-theme,php-bin,php-conf,php-os,drush-script,drush-version,drush-temp,drush-conf,install-profile,root,site,files,private,temp');
+      ->option('fields', 'db-password,drupal-version,uri,db-driver,db-hostname,db-port,db-username,db-name,db-status,bootstrap,theme,admin-theme,php-bin,php-conf,php-os,drush-script,drush-version,drush-temp,drush-conf,install-profile,root,site,files,private,temp', '=');
 
     /** @var \Robo\Result $resultStatus */
     $resultStatus = $drushCmd->run();
