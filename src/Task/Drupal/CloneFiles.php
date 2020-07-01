@@ -65,9 +65,7 @@ class CloneFiles extends BaseTask {
         'rsync',
         realpath($this->source) . '/',
         realpath($this->destination) . '/',
-      ])
-      ->option('include-conf')
-      ->option('include-vcs');
+      ]);
 
     return $drushCmd->run();
   }
