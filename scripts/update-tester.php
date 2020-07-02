@@ -208,9 +208,9 @@ class UpdateTester extends Tasks {
     $drushCmd->dir($absoluteDestinationDocroot);
     $drushCmd->printOutput(FALSE);
     $drushCmd
-      ->arg('status')
+      ->arg('core-status')
       ->option('pipe')
-      ->option('show-passwords');
+      ->option('fields', 'db-password,drupal-version,uri,db-driver,db-hostname,db-port,db-username,db-name,db-status,bootstrap,theme,admin-theme,php-bin,php-conf,php-os,drush-script,drush-version,drush-temp,drush-conf,install-profile,root,site,files,private,temp', '=');
 
     /** @var \Robo\Result $resultStatus */
     $resultStatus = $drushCmd->run();
